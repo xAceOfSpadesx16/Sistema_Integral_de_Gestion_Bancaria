@@ -26,9 +26,9 @@ public class TarjetaCredito extends Producto {
 
     /**
      * El saldo disponible inicial es igual al límite de crédito.
-     *  numeroTarjeta El número único de la tarjeta de crédito.
-     *  limiteCredito El límite máximo de crédito permitido. Debe ser positivo.
-     *  IllegalArgumentException si el número de tarjeta es nulo/vacío o el límite es negativo.
+     * numeroTarjeta El número único de la tarjeta de crédito.
+     * limiteCredito El límite máximo de crédito permitido. Debe ser positivo.
+     * IllegalArgumentException si el número de tarjeta es nulo/vacío o el límite es negativo.
      */
     public TarjetaCredito(Cliente titular, String numeroTarjeta, double limiteCredito) {
         super(titular);
@@ -80,7 +80,7 @@ public class TarjetaCredito extends Producto {
 
     /**
      * Registra un pago en la tarjeta, aumentando el saldo disponible.
-     *  El monto a pagar (debe ser mayor que 0).
+     * El monto a pagar (debe ser mayor que 0).
      * return true si el pago fue exitoso, false si el monto es inválido.
      */
     public boolean registrarPago(double monto) {
@@ -92,13 +92,14 @@ public class TarjetaCredito extends Producto {
         System.out.println("Pago de $" + String.format("%.2f", monto) + " registrado. Nuevo saldo disponible: $" + String.format("%.2f", this.saldoDisponible));
         return true;
     }
+
     /**
      * Devuelve una representación en String del estado actual de la tarjeta.
      * return una cadena con la información de la tarjeta.
      */
 
     public String toString() {
-        return "Productos.Tarjetas.TarjetaCredito {" +
+        return "TarjetaCredito {" +
                 "numero='" + numeroTarjeta + '\'' +
                 ", limite=" + String.format("%.2f", limiteCredito) +
                 ", saldoDisponible=" + String.format("%.2f", saldoDisponible) +

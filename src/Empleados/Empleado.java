@@ -2,6 +2,7 @@ package Empleados;
 
 import Banco.Banco;
 import Clientes.Cliente;
+import Productos.Cuentas.Cuenta;
 
 import java.util.List;
 
@@ -66,10 +67,11 @@ public class Empleado {
             System.out.println("Ya hay un cliente en atención, terminando la atención.");
             this.terminarAtencion();
         }
-        if (this.entidadBancaria.esClienteDelBanco(clienteEnAtencion)) {
+        if (!this.entidadBancaria.esClienteDelBanco(clienteEnAtencion)) {
             System.out.println("No es un cliente registrado del banco.");
             System.out.println("Cree o se registre el cliente para continuar.");
         } else {
+            System.out.println("Atendiendo al cliente " + clienteEnAtencion.getNombre());
             this.clienteEnAtencion = clienteEnAtencion;
         }
     }
@@ -82,11 +84,12 @@ public class Empleado {
         return this.clienteEnAtencion != null;
     }
 
-    public void crearYAtenderCliente(String nombre, String direccion, List<String> telefonos, int dniCuit, String tipo) {
+    public Cliente crearYAtenderCliente(String nombre, String direccion, List<String> telefonos, int dniCuit, String tipo) {
         Cliente cliente = this.entidadBancaria.crearCliente(nombre, direccion, telefonos, dniCuit, tipo);
         if (cliente != null) {
             this.atenderCliente(cliente);
         }
+        return cliente;
     }
 
     public void agregarYAtenderCliente(Cliente cliente) {
@@ -94,4 +97,26 @@ public class Empleado {
         this.atenderCliente(cliente);
     }
 
+
+    public Cuenta crearCuenta(String numeroCuenta, double saldoInicial, int limiteDescubierto, Banco.ProductoType tipoCuenta) {
+        return this.entidadBancaria.crearCuenta(this.clienteEnAtencion, tipoCuenta, numeroCuenta, saldoInicial, limiteDescubierto);
+    }
+
+    public Cuenta buscarCuenta(String numeroCuenta) {
+        return this.entidadBancaria.getCuenta(numeroCuenta);
+    }
+
+    public List<Cuenta> buscarCuentasCliente() {
+        return this.entidadBancaria.getCuentasCliente(this.clienteEnAtencion);
+    }
+
+    @Override
+    public String toString() {
+        return "Empleado {" +
+                "nombre='" + nombre + '\'' +
+                ", apellido='" + apellido + '\'' +
+                ", edad=" + edad +
+                ", salario=" + salario +
+                '}';
+    }
 }

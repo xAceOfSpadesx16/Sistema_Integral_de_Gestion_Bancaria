@@ -3,7 +3,9 @@ package Banco;
 import Clientes.Cliente;
 import Clientes.Empresa;
 import Clientes.Persona;
+import Empleados.Cajero;
 import Empleados.Empleado;
+import Empleados.Gerente;
 import Productos.CajaDeSeguridad.CajaDeSeguridad;
 import Productos.Cuentas.CajaDeAhorro;
 import Productos.Cuentas.Cuenta;
@@ -25,9 +27,20 @@ public abstract class BancoGenerico extends Banco {
         this.empleados.add(empleado);
     }
 
-    public void contratarEmpleado(String nombre, String apellido, int edad, double salario) {
-        Empleado empleado = new Empleado(nombre, apellido, edad, salario, this);
-        this.empleados.add(empleado);
+    public Empleado crearYContratarEmpleado(String nombre, String apellido, int edad, double salario, String tipoEmpleado) {
+        Empleado empleado;
+        if (tipoEmpleado.equalsIgnoreCase("gerente")) {
+            empleado = new Gerente(nombre, apellido, edad, salario, this);
+            this.empleados.add(empleado);
+            return empleado;
+        } else if (tipoEmpleado.equalsIgnoreCase("cajero")) {
+            empleado = new Cajero(nombre, apellido, edad, salario, this);
+            this.empleados.add(empleado);
+            return empleado;
+        } else {
+            System.out.println("Empleado no contratado");
+            return null;
+        }
     }
 
     public void despedirEmpleado(Empleado empleado) {
@@ -49,10 +62,11 @@ public abstract class BancoGenerico extends Banco {
         this.clientes.add(cliente);
 
         System.out.println("Creando Caja de Ahorro");
-        this.crearCuenta(cliente, ProductoType.CAJA_AHORRO, "1234", 10000, 1000);
+        // Numero de cuenta debe implementarse random o autoincremental
+        this.crearCuenta(cliente, ProductoType.CAJA_AHORRO, Cuenta.crearNumeroCuenta() , 0, 1000);
 
         System.out.println("Creando Tarjeta");
-        this.crearTarjetaCredito(cliente, "1234", 10000);
+        this.crearTarjetaCredito(cliente, TarjetaCredito.generarNumeroTarjeta(), 10000);
 
     }
 
@@ -74,7 +88,7 @@ public abstract class BancoGenerico extends Banco {
 
 
     // Gestion Cuentas
-    public void crearCuenta(Cliente titular, ProductoType tipoCuenta, String numeroCuenta, double saldoInicial, int limiteDescubierto) {
+    public Cuenta crearCuenta(Cliente titular, ProductoType tipoCuenta, String numeroCuenta, double saldoInicial, int limiteDescubierto) {
 
         ProductoFactory factory = this.getFactory(tipoCuenta);
 
@@ -82,25 +96,18 @@ public abstract class BancoGenerico extends Banco {
             case CUENTA_CORRIENTE:
                 CuentaCorriente cuentaCorriente = factory.crearCuentaCorriente(titular, numeroCuenta, saldoInicial, limiteDescubierto);
                 this.productos.add(cuentaCorriente);
-                break;
+                return cuentaCorriente;
             case CAJA_AHORRO:
                 CajaDeAhorro cajaAhorro = factory.crearCajaAhorro(titular, numeroCuenta, saldoInicial);
                 this.productos.add(cajaAhorro);
-                break;
+                return cajaAhorro;
             default:
                 System.out.println("Producto " + tipoCuenta.name() + " no soportado");
-                break;
+                return null;
         }
 
     }
 
-    private Cuenta getCuenta(String numeroCuenta) {
-        return (Cuenta) this.productos.stream()
-                .filter(producto -> producto instanceof Cuenta)
-                .filter(producto -> ((Cuenta) producto).getNumeroCuenta().equals(numeroCuenta))
-                .findFirst()
-                .orElse(null);
-    }
 
     private boolean esCuentaDelBanco(Cuenta cuenta) {
         return this.productos.contains(cuenta);
@@ -185,7 +192,7 @@ public abstract class BancoGenerico extends Banco {
         if(cuentaOrigen == null) {
             System.out.println("No se encontro la cuenta de origen N°" + numeroCuentaOrigen);
         } else if (!cuentaOrigen.getTitular().equals(cliente)) {
-            System.out.println("La cuenta " + numeroCuentaOrigen + " no pertenece al cliente " + cliente.getNombre());
+            System.out.println("La cuenta de origen N°" + numeroCuentaOrigen + " no pertenece al cliente " + cliente.getNombre());
         } else if (cuentaDestino == null) {
             System.out.println("No se encontro la cuenta de destino N°" + numeroCuentaDestino);
         }else{
@@ -231,7 +238,7 @@ public abstract class BancoGenerico extends Banco {
 
     // Gestion Tarjetas de Credito
     public void crearTarjetaCredito(Cliente titular, String numeroTarjeta, double limiteCredito) {
-        if (this.esClienteDelBanco(titular)) {
+        if (!this.esClienteDelBanco(titular)) {
             System.out.println("El cliente " + titular.getNombre() + " no pertenece al banco");
             return;
         }

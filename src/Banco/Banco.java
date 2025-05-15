@@ -53,7 +53,7 @@ public abstract class Banco {
     // Contratacion de empleados.
     public abstract void contratarEmpleado(Empleado empleado);
 
-    public abstract void contratarEmpleado(String nombre, String apellido, int edad, double salario);
+    public abstract Empleado crearYContratarEmpleado(String nombre, String apellido, int edad, double salario, String tipoEmpleado);
 
     // Getter de empleados.
     public List<Empleado> getEmpleados(){
@@ -107,13 +107,13 @@ public abstract class Banco {
 
 
     // Gestion Cuentas
-    public abstract void crearCuenta(Cliente titular, ProductoType tipoCuenta, String numeroCuenta, double saldoInicial, int limiteDescubierto);
+    public abstract Cuenta crearCuenta(Cliente titular, ProductoType tipoCuenta, String numeroCuenta, double saldoInicial, int limiteDescubierto);
 
     private boolean esCuentaDelBanco(Cuenta cuenta) {
         return this.productos.contains(cuenta);
     }
 
-    private Cuenta getCuenta(String numeroCuenta) {
+    public Cuenta getCuenta(String numeroCuenta) {
         return (Cuenta) this.productos.stream()
                 .filter(producto -> producto instanceof Cuenta)
                 .filter(producto -> ((Cuenta) producto).getNumeroCuenta().equals(numeroCuenta))
@@ -121,6 +121,15 @@ public abstract class Banco {
                 .orElse(null);
     }
 
+    public List<Cuenta> getCuentasCliente(Cliente titular) {
+        List<Cuenta> cuentas = new ArrayList<Cuenta>();
+        for (Producto producto : this.productos) {
+            if (producto instanceof Cuenta && producto.getTitular().equals(titular)) {
+                cuentas.add((Cuenta) producto);
+            }
+        }
+        return cuentas;
+    }
     // Deposito en Cuenta
     public abstract void depositarEnCuenta(String numeroCuenta, double monto);
 
